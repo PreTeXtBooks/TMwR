@@ -2,14 +2,10 @@
 <frontmatter xmlns:xi="http://www.w3.org/2001/XInclude" xml:id="meta-front">
   <bibinfo>
     <author>
-      <personname>NAME</personname>
-      <website>
-      </website>
+      <personname>Max Kuhn</personname>
     </author>
     <author>
-      <personname>NAME</personname>
-      <website>
-      </website>
+      <personname>Julia Silge</personname>
     </author>
     <date>
       <today/>
@@ -22,7 +18,7 @@
 
   <abstract>
     <p>
-      ABSTRACT
+      The tidymodels framework is a collection of R packages for modeling and machine learning using tidyverse principles. This book provides a practical introduction to tidymodels and outlines statistical and methodological best practices for model development.
     </p>
   </abstract>
 </frontmatter>

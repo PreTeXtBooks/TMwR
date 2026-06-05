@@ -1,47 +1,50 @@
 <?xml version='1.0' encoding='utf-8'?>
-<!-- This is the main file of the pretext template book provided -->
-<!-- by the <c>pretext new book</c> command.  The main.ptx here always-->
-<!-- starts with <pretext> tags.  In this example, the main file -->
-<!-- just imports other .ptx files which contain content. Open   -->
-<!-- those files to see more pretext features                    -->
-
 <pretext xml:lang="en-US" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <!-- we first include a file which contains the docinfo element: -->
   <xi:include href="./meta_docinfo.ptx" />
 
-  <!-- The <book> tags wrap all the content.  Change the @xml:id   -->
-  <!-- to some short (non-spaced) description of your book         -->
-  <book xml:id="book-id-here">
-    <!-- The book needs a title and can have a subtitle  -->
-    <title>Title</title>
-    <subtitle>Subtitle</subtitle>
+  <book xml:id="tmwr">
+    <title>Tidy Modeling with R</title>
 
-    <!-- Now we include files containing each main devision.       -->
-
-    <!-- First a frontmatter for prefaces and such. Maybe comment  -->
-    <!-- out for now and write this when the book is more complete -->
     <xi:include href="./meta_frontmatter.ptx" />
 
-    <!-- Introduction chapter -->
-    <xi:include href="./ch_intro.ptx" />
+    <part xml:id="part-introduction">
+      <title>Introduction</title>
+      <xi:include href="./ch_01_software_modeling.ptx" />
+      <xi:include href="./ch_02_tidyverse.ptx" />
+      <xi:include href="./ch_03_base_r.ptx" />
+    </part>
 
-    <!-- Additional chapters will be added here as the book develops -->
+    <part xml:id="part-modeling-basics">
+      <title>Modeling Basics</title>
+      <xi:include href="./ch_04_ames_housing_data.ptx" />
+      <xi:include href="./ch_05_data_spending.ptx" />
+      <xi:include href="./ch_06_fitting_models.ptx" />
+      <xi:include href="./ch_07_model_workflow.ptx" />
+      <xi:include href="./ch_08_feature_engineering.ptx" />
+      <xi:include href="./ch_09_model_effectiveness.ptx" />
+    </part>
 
-    <!-- This chapter contains a wide variety of elements to  -->
-    <!-- illustrate what pretext can do, plus links to more help.  -->
-    <!-- We recommend keeping this handy, and commenting it out    -->
-    <!-- when you show off your own work.                          -->
-    <!-- <xi:include href="./ch_features.ptx" /> -->
-  
-    <!-- This chapter includes several features that require pregeneration   -->
-    <!-- of assets with <c>pretext generate</c> or similar. Some features require -->
-    <!-- internet access; others require local installs not automatically    -->
-    <!-- provided by the CLI. Uncomment to view this chapter, and comment    -->
-    <!-- features you don't wish to generate.                                -->
-    <!-- <xi:include href="./ch_generate.ptx" /> -->
+    <part xml:id="part-effective-models">
+      <title>Tools for Creating Effective Models</title>
+      <xi:include href="./ch_10_resampling.ptx" />
+      <xi:include href="./ch_11_comparing_models.ptx" />
+      <xi:include href="./ch_12_tuning_parameters.ptx" />
+      <xi:include href="./ch_13_grid_search.ptx" />
+      <xi:include href="./ch_14_iterative_search.ptx" />
+      <xi:include href="./ch_15_workflow_sets.ptx" />
+    </part>
 
-    <!-- Finaly we place the backmatter in its own file and inlcude-->
+    <part xml:id="part-beyond-basics">
+      <title>Beyond the Basics</title>
+      <xi:include href="./ch_16_dimensionality_reduction.ptx" />
+      <xi:include href="./ch_17_encoding_categorical_data.ptx" />
+      <xi:include href="./ch_18_explaining_models.ptx" />
+      <xi:include href="./ch_19_trusting_predictions.ptx" />
+      <xi:include href="./ch_20_ensemble_models.ptx" />
+      <xi:include href="./ch_21_inferential_analysis.ptx" />
+    </part>
+
     <xi:include href="./meta_backmatter.ptx" />
   </book>
 </pretext>
