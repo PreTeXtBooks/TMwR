@@ -60,12 +60,8 @@
     </p>
 
     <p>
-      The software is based on the R programming language (R Core Team 2014). R has been designed especially for data analysis and modeling. It is an implementation of the S language (with lexical scoping rules adapted from Scheme and Lisp) which was created in the 1970s to
+      The software is based on the R programming language (R Core Team 2014). R has been designed especially for data analysis and modeling. It is an implementation of the S language (with lexical scoping rules adapted from Scheme and Lisp) which was created in the 1970s to "turn ideas into software, quickly and faithfully" (Chambers 1998).
     </p>
-
-    <blockquote>
-      <p>"turn ideas into software, quickly and faithfully" (Chambers 1998)</p>
-    </blockquote>
 
     <p>
       R is open source and free. It is a powerful programming language that can be used for many different purposes but specializes in data analysis, modeling, visualization, and machine learning. R is easily extensible; it has a vast ecosystem of packages, mostly user-contributed modules that focus on a specific theme, such as modeling, visualization, and so on.
@@ -107,7 +103,7 @@
       <title>Inferential models</title>
 
       <p>
-        The goal of an inferential model is to produce a decision for a research question or to explore a specific hypothesis, similar to how statistical tests are used.<fn>Many specific statistical tests are in fact equivalent to models. For example, t-tests and analysis of variance (ANOVA) methods are particular cases of the generalized linear model.</fn> An inferential model starts with a predefined conjecture or idea about a population and produces a statistical conclusion such as an interval estimate or the rejection of a hypothesis.
+        The goal of an inferential model is to produce a decision for a research question or to explore a specific hypothesis, similar to how statistical tests are used. Many specific statistical tests are in fact equivalent to models. For example, t-tests and analysis of variance (ANOVA) methods are particular cases of the generalized linear model. An inferential model starts with a predefined conjecture or idea about a population and produces a statistical conclusion such as an interval estimate or the rejection of a hypothesis.
       </p>
 
       <p>
