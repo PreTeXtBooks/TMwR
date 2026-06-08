@@ -44,7 +44,7 @@
     </p>
 
     <p>
-      Second, modeling software should promote good scientific methodology. When working with complex predictive models, it can be easy to unknowingly commit errors related to logical fallacies or inappropriate assumptions. Many machine learning models are so adept at discovering patterns that they can effortlessly find empirical patterns in the data that fail to reproduce later. Some of methodological errors are insidious in that the issue can go undetected until a later time when new data that contain the true result are obtained.
+      Second, modeling software should promote good scientific methodology. When working with complex predictive models, it can be easy to unknowingly commit errors related to logical fallacies or inappropriate assumptions. Many machine learning models are so adept at discovering patterns that they can effortlessly find empirical patterns in the data that fail to reproduce later. Some methodological errors are insidious in that the issue can go undetected until a later time when new data that contain the true result are obtained.
     </p>
 
     <warning>
@@ -139,7 +139,7 @@
       </p>
 
       <p>
-        What are the most important factors affecting predictive models? There are many different ways that a predictive model can be created, so the important factors depend on how the model was developed.(Broader discussions of these distinctions can be found in Breiman 2001 and Shmueli 2010.)
+        What are the most important factors affecting predictive models? There are many different ways that a predictive model can be created, so the important factors depend on how the model was developed. (Broader discussions of these distinctions can be found in Breiman 2001 and Shmueli 2010.)
       </p>
 
       <p>
