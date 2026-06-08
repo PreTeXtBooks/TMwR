@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter xml:id="ch-software-modeling" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Software for modeling</title>
+  <title>Software for Modeling</title>
 
   <p>
     Models are mathematical tools that can describe a system and capture relationships in the data given to them. Models can be used for various purposes, including predicting future events, determining if there is a difference between several groups, aiding map-based visualization, discovering novel patterns in the data that could be further investigated, and more. The utility of a model hinges on its ability to be reductive, or to reduce complex relationships to simpler terms. The primary influences in the data can be captured mathematically in a useful way, such as in a relationship that can be expressed as an equation.
@@ -256,6 +256,7 @@
 
     <figure xml:id="software-data-science-model">
       <title>The data science process (from <em>R for Data Science</em>, used with permission)</title>
+      <shortdescription>The data science process diagram.</shortdescription>
       <image source="../premade/data-science-model.svg" width="80%"/>
     </figure>
 
@@ -280,6 +281,7 @@
 
     <figure xml:id="software-modeling-process">
       <title>A schematic for the typical modeling process</title>
+      <shortdescription>A schematic of the modeling process.</shortdescription>
       <image source="../premade/modeling-process.svg" width="100%"/>
     </figure>
 
