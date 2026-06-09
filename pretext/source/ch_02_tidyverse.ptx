@@ -112,7 +112,7 @@
       <title>Design for the pipe and functional programming</title>
 
       <p>
-        The <c>magrittr</c> pipe operator (<c>%&gt;%</c>) is a tool for chaining together a sequence of R functions. In R 4.1.0, a native pipe operator <c>|&gt;</c> was introduced as well. In this book, we use the <c>magrittr</c> pipe since users on older versions of R will not have the new native pipe.
+        The <c>magrittr</c> pipe operator (<c>%&gt;%</c>) is a tool for chaining together a sequence of R functions. In R 4.1.0, a native pipe operator <c>|&gt;</c> was introduced as well. In this book, we use the <c>magrittr</c> pipe for consistency with the examples used throughout the text.
       </p>
 
       <p>
@@ -175,7 +175,7 @@
     </p>
 
     <p>
-      There are other advantages to using tibbles instead of data frames, such as better printing and more. Chapter 10 of Wickham and Grolemund (2016) has more details on tibbles.
+      There are other advantages to using tibbles instead of data frames, such as better printing and stricter subsetting behavior. Chapter 10 of Wickham and Grolemund (2016) has more details on tibbles.
     </p>
 
     <p>
