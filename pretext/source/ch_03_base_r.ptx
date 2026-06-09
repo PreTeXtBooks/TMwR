@@ -3,6 +3,431 @@
   <title>A Review of R Modeling Fundamentals</title>
 
   <p>
-    Placeholder content for this chapter.
+    Before describing how to use tidymodels for applying tidy data principles to building models with R, let's review how models are created, trained, and used in the core R language (often called <em>base R</em>). This chapter is a brief illustration of core language conventions that are important to be aware of even if you never use base R for models at all. It is not exhaustive, but it provides readers, especially those new to R, with the most commonly used motifs.
   </p>
+
+  <p>
+    The S language, on which R is based, has had a rich data analysis environment since the publication of the White Book. This version of S introduced standard infrastructure components familiar to R users today, such as symbolic model formulae, model matrices, and data frames, as well as standard object-oriented programming methods for data analysis. These user interfaces have not substantively changed since then.
+  </p>
+
+  <section xml:id="an-example">
+    <title>An Example</title>
+
+    <p>
+      To demonstrate some fundamentals for modeling in base R, let's use experimental data from McDonald (2009), by way of Mangiafico (2015), on the relationship between the ambient temperature and the rate of cricket chirps per minute. Data were collected for two species: <em>O. exclamationis</em> and <em>O. niveus</em>. The data are contained in a data frame called <c>crickets</c>.
+    </p>
+
+    <listing xml:id="base-r-cricket-plot">
+      <caption>Plotting cricket chirp rate against temperature.</caption>
+      <program language="r">
+        <code><![CDATA[
+library(tidyverse)
+
+data(crickets, package = "modeldata")
+names(crickets)
+
+ggplot(crickets,
+       aes(x = temp, y = rate, color = species, pch = species, lty = species)) +
+  geom_point(size = 2) +
+  geom_smooth(method = lm, se = FALSE, alpha = 0.5) +
+  scale_color_brewer(palette = "Paired") +
+  labs(x = "Temperature (C)", y = "Chirp Rate (per minute)")
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      The data exhibit fairly linear trends for each species. For a given temperature, <em>O. exclamationis</em> appears to chirp more per minute than the other species. For an inferential model, the researchers might have specified the following null hypotheses prior to seeing the data:
+    </p>
+
+    <ul>
+      <li>Temperature has no effect on the chirp rate.</li>
+      <li>There are no differences between the species' chirp rate.</li>
+    </ul>
+
+    <p>
+      There may be some scientific or practical value in predicting the chirp rate, but in this example we will focus on inference.
+    </p>
+
+    <p>
+      To fit an ordinary linear model in R, the <c>lm()</c> function is commonly used. The important arguments to this function are a model formula and a data frame that contains the data. The formula is symbolic. For example, the simple formula <c>rate ~ temp</c> specifies that the chirp rate is the outcome and that the temperature value is the predictor. If the data contained the time of day in which the measurements were obtained in a column called <c>time</c>, the formula <c>rate ~ temp + time</c> would not add the time and temperature values together. Instead, it symbolically represents that temperature and time should be added as separate <em>main effects</em> to the model.
+    </p>
+
+    <p>
+      There are no time measurements in these data but the species can be added to the model in the same way with <c>rate ~ temp + species</c>. Species is not a quantitative variable; in the data frame, it is represented as a factor column with levels <c>"O. exclamationis"</c> and <c>"O. niveus"</c>. The vast majority of model functions cannot operate on nonnumeric data. For species, the model needs to encode the species data in a numeric format. The most common approach is to use indicator variables, also known as dummy variables, in place of the original qualitative values. In this instance, since species has two possible values, the model formula will automatically encode this column as numeric by adding a new column that has a value of zero when the species is <c>"O. exclamationis"</c> and a value of one when the data correspond to <c>"O. niveus"</c>. The underlying formula machinery automatically converts these values for the data set used to create the model, as well as for any new data points.
+    </p>
+
+    <note>
+      <p>
+        Suppose there were five species instead of two. The model formula, in this case, would create four binary columns that are binary indicators for four of the species. The <em>reference level</em> of the factor (that is, the first level) is always left out of the predictor set. The idea is that, if you know the values of the four indicator variables, the value of the species can be determined.
+      </p>
+    </note>
+
+    <p>
+      The model formula <c>rate ~ temp + species</c> creates a model with different y-intercepts for each species; the slopes of the regression lines could be different for each species as well. To accommodate this structure, an interaction term can be added to the model. This can be specified in a few different ways, and the most basic uses the colon:
+    </p>
+
+    <listing xml:id="base-r-interaction-formulas">
+      <caption>Equivalent ways to express interactions in an R formula.</caption>
+      <program language="r">
+        <code><![CDATA[
+rate ~ temp + species + temp:species
+
+rate ~ (temp + species)^2
+
+rate ~ temp * species
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      In addition to the convenience of automatically creating indicator variables, the formula offers a few other niceties:
+    </p>
+
+    <ul>
+      <li>In-line functions can be used in the formula. For example, to use the natural log of the temperature, we can create the formula <c>rate ~ log(temp)</c>. Since the formula is symbolic by default, literal math can also be applied to the predictors using the identity function <c>I()</c>. To use Fahrenheit units, the formula could be <c>rate ~ I((temp * 9/5) + 32)</c> to convert from Celsius.</li>
+      <li>R has many functions that are useful inside of formulas. For example, <c>poly(x, 3)</c> adds linear, quadratic, and cubic terms for <c>x</c> to the model as main effects. The <c>splines</c> package also has several functions to create nonlinear spline terms in the formula.</li>
+      <li>For data sets where there are many predictors, the period shortcut is available. The period represents main effects for all of the columns that are not on the left-hand side of the tilde. Using <c>~ (.)^3</c> would add main effects as well as all two- and three-variable interactions to the model.</li>
+    </ul>
+
+    <p>
+      Returning to our chirping crickets, let's use a two-way interaction model. In this book, we use the suffix <c>_fit</c> for R objects that are fitted models.
+    </p>
+
+    <listing xml:id="base-r-cricket-fit">
+      <caption>Fitting an interaction model for the cricket data.</caption>
+      <program language="r">
+        <code><![CDATA[
+interaction_fit <- lm(rate ~ (temp + species)^2, data = crickets)
+interaction_fit
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      This output is a little hard to read. For the species indicator variables, R mashes the variable name together with the factor level with no delimiter.
+    </p>
+
+    <p>
+      Before going into any inferential results for this model, the fit should be assessed using diagnostic plots. We can use the <c>plot()</c> method for <c>lm</c> objects. This method produces a set of four plots for the object, each showing different aspects of the fit.
+    </p>
+
+    <listing xml:id="base-r-interaction-plots">
+      <caption>Diagnostic plots for the interaction model.</caption>
+      <program language="r">
+        <code><![CDATA[
+par(mfrow = c(1, 2))
+plot(interaction_fit, which = 1)
+plot(interaction_fit, which = 2)
+        ]]></code>
+      </program>
+    </listing>
+
+    <note>
+      <p>
+        When it comes to the technical details of evaluating expressions, R is <em>lazy</em> (as opposed to eager). This means that model fitting functions typically compute the minimum possible quantities at the last possible moment. For example, if you are interested in the coefficient table for each model term, this is not automatically computed with the model but is instead computed via the <c>summary()</c> method.
+      </p>
+    </note>
+
+    <p>
+      Our next order of business with the crickets is to assess if the inclusion of the interaction term is necessary. The most appropriate approach for this model is to recompute the model without the interaction term and use the <c>anova()</c> method.
+    </p>
+
+    <listing xml:id="base-r-cricket-anova">
+      <caption>Comparing a reduced model to the interaction model.</caption>
+      <program language="r">
+        <code><![CDATA[
+main_effect_fit <- lm(rate ~ temp + species, data = crickets)
+anova(main_effect_fit, interaction_fit)
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      This statistical test suggests that there is not enough evidence against the null hypothesis that the interaction term is unnecessary. For this reason, we will conduct further analysis on the model without the interaction.
+    </p>
+
+    <p>
+      Residual plots should be reassessed to make sure that our theoretical assumptions are valid enough to trust the p-values produced by the model. We can use the <c>summary()</c> method to inspect the coefficients, standard errors, and p-values of each model term.
+    </p>
+
+    <listing xml:id="base-r-main-coef">
+      <caption>Inspecting the fitted model summary.</caption>
+      <program language="r">
+        <code><![CDATA[
+summary(main_effect_fit)
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      The chirp rate for each species increases as the temperature increases by a single degree. The temperature term shows strong statistical significance as evidenced by the p-value. The species term indicates that, across all temperature values, <em>O. niveus</em> has a lower chirp rate than <em>O. exclamationis</em>. Similar to the temperature term, the species effect is associated with a very small p-value.
+    </p>
+
+    <p>
+      The only issue in this analysis is the intercept value. It indicates that at 0&#176; C, there are negative chirps per minute for both species. While this does not make sense, the data only go as low as the observed temperatures and interpreting the model at 0&#176; C would be an extrapolation. That would be a bad idea. The model fit is good within the applicable range of the temperature values; the conclusions should be limited to the observed temperature range.
+    </p>
+
+    <p>
+      If we needed to estimate the chirp rate at a temperature that was not observed in the experiment, we could use the <c>predict()</c> method. It takes the model object and a data frame of new values for prediction.
+    </p>
+
+    <listing xml:id="base-r-cricket-pred">
+      <caption>Generating predictions from the fitted model.</caption>
+      <program language="r">
+        <code><![CDATA[
+new_values <- data.frame(species = "O. exclamationis", temp = 15:20)
+predict(main_effect_fit, new_values)
+        ]]></code>
+      </program>
+    </listing>
+
+    <warning>
+      <p>
+        Note that the nonnumeric value of <c>species</c> is passed to the predict method, as opposed to the numeric, binary indicator variable.
+      </p>
+    </warning>
+
+    <p>
+      While this analysis has not been an exhaustive demonstration of R's modeling capabilities, it does highlight some major features important for the rest of this book:
+    </p>
+
+    <ul>
+      <li>The language has an expressive syntax for specifying model terms for both simple and quite complex models.</li>
+      <li>The R formula method has many conveniences for modeling that are also applied to new data when predictions are generated.</li>
+      <li>There are numerous helper functions, such as <c>anova()</c>, <c>summary()</c>, and <c>predict()</c>, that you can use to conduct specific calculations after the fitted model is created.</li>
+    </ul>
+
+    <p>
+      Finally, as previously mentioned, this framework was first published in 1992. Most of these ideas and methods were developed in that period but have remained remarkably relevant to this day. It highlights that the S language and, by extension R, has been designed for data analysis since its inception.
+    </p>
+  </section>
+
+  <section xml:id="formula">
+    <title>What Does the R Formula Do?</title>
+
+    <p>
+      The R model formula is used by many modeling packages. It usually serves multiple purposes:
+    </p>
+
+    <ul>
+      <li>The formula defines the columns that the model uses.</li>
+      <li>The standard R machinery uses the formula to encode the columns into an appropriate format.</li>
+      <li>The roles of the columns are defined by the formula.</li>
+    </ul>
+
+    <p>
+      For the most part, practitioners' understanding of what the formula does is dominated by the last purpose. Our focus when typing out a formula is often to declare how the columns should be used. For example, the previous specification we discussed sets up predictors to be used in a specific way. Our focus, when seeing this, is that there are two predictors and the model should contain their main effects and the two-way interactions. However, this formula also implies that, since <c>species</c> is a factor, it should also create indicator variable columns for this predictor and multiply those columns by the <c>temp</c> column to create the interactions. This transformation represents our second bullet point on encoding; the formula also defines how each column is encoded and can create additional columns that are not in the original data.
+    </p>
+
+    <warning>
+      <p>
+        This is an important point that will come up multiple times in this text, especially when we discuss more complex feature engineering in Chapter 8 and beyond. The formula in R has some limitations, and our approaches to overcoming them contend with all three aspects.
+      </p>
+    </warning>
+  </section>
+
+  <section xml:id="tidiness-modeling">
+    <title>Why Tidiness Is Important for Modeling</title>
+
+    <p>
+      One of the strengths of R is that it encourages developers to create a user interface that fits their needs. As an example, here are three common methods for creating a scatter plot of two numeric variables in a data frame called <c>plot_data</c>:
+    </p>
+
+    <listing xml:id="base-r-three-plots">
+      <caption>Three ways to draw a scatter plot.</caption>
+      <program language="r">
+        <code><![CDATA[
+plot(plot_data$x, plot_data$y)
+
+library(lattice)
+xyplot(y ~ x, data = plot_data)
+
+library(ggplot2)
+ggplot(plot_data, aes(x = x, y = y)) + geom_point()
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      In these three cases, separate groups of developers devised three distinct interfaces for the same task. Each has advantages and disadvantages.
+    </p>
+
+    <p>
+      In comparison, the Python Developer's Guide espouses the notion that, when approaching a problem, there should be one, and preferably only one, obvious way to do it.
+    </p>
+
+    <p>
+      R is quite different from Python in this respect. An advantage of R's diversity of interfaces is that it can evolve over time and fit different needs for different users. Unfortunately, some of the syntactical diversity is due to a focus on the needs of the person developing the code instead of the needs of the person using the code. Inconsistencies among packages can be a stumbling block for R users.
+    </p>
+
+    <p>
+      Suppose your modeling project has an outcome with two classes. There are a variety of statistical and machine learning models you could choose from. In order to produce a class probability estimate for each sample, it is common for a model function to have a corresponding <c>predict()</c> method. However, there is significant heterogeneity in the argument values used by those methods to make class probability predictions; this heterogeneity can be difficult for even experienced users to navigate. A sampling of these argument values for different models is shown in the table below.
+    </p>
+
+    <listing xml:id="probability-args">
+      <caption>Heterogeneous argument names for different modeling functions.</caption>
+      <program language="text">
+        <code><![CDATA[
+Function         Package    Code
+lda()            MASS       predict(object)
+glm()            stats      predict(object, type = "response")
+gbm()            gbm        predict(object, type = "response", n.trees)
+mda()            mda        predict(object, type = "posterior")
+rpart()          rpart      predict(object, type = "prob")
+various          RWeka      predict(object, type = "probability")
+logitboost()     LogitBoost predict(object, type = "raw", nIter)
+pamr.train()     pamr       pamr.predict(object, type = "posterior")
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      Note that the last example has a custom function to make predictions instead of using the more common <c>predict()</c> interface. This lack of consistency is a barrier to day-to-day usage of R for modeling.
+    </p>
+  </section>
+
+  <section xml:id="combining-base-r-models-and-the-tidyverse">
+    <title>Combining Base R Models and the Tidyverse</title>
+
+    <p>
+      R modeling functions from the core language or other R packages can be used in conjunction with the tidyverse, especially with the <c>dplyr</c>, <c>purrr</c>, and <c>tidyr</c> packages. For example, if we wanted to fit separate models for each cricket species, we can first break out the cricket data by this column using <c>dplyr::group_nest()</c>:
+    </p>
+
+    <listing xml:id="base-r-by-species-split">
+      <caption>Creating a list-column of grouped cricket data.</caption>
+      <program language="r">
+        <code><![CDATA[
+split_by_species <- crickets %>% group_nest(species)
+split_by_species
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      The <c>data</c> column contains the <c>rate</c> and <c>temp</c> columns from <c>crickets</c> in a list column. From this, the <c>purrr::map()</c> function can create individual models for each species:
+    </p>
+
+    <listing xml:id="base-r-species-models">
+      <caption>Fitting separate models by species.</caption>
+      <program language="r">
+        <code><![CDATA[
+model_by_species <- split_by_species %>%
+  mutate(model = map(data, ~ lm(rate ~ temp, data = .x)))
+model_by_species
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      To collect the coefficients for each of these models, use <c>broom::tidy()</c> to convert them to a consistent data frame format so that they can be unnested:
+    </p>
+
+    <listing xml:id="base-r-species-coefs">
+      <caption>Collecting model coefficients with broom.</caption>
+      <program language="r">
+        <code><![CDATA[
+model_by_species %>%
+  mutate(coef = map(model, tidy)) %>%
+  select(species, coef) %>%
+  unnest(cols = c(coef))
+        ]]></code>
+      </program>
+    </listing>
+
+    <note>
+      <p>
+        List columns can be very powerful in modeling projects. List columns provide containers for any type of R objects, from a fitted model itself to an important data frame structure.
+      </p>
+    </note>
+  </section>
+
+  <section xml:id="the-tidymodels-metapackage">
+    <title>The tidymodels Metapackage</title>
+
+    <p>
+      The tidyverse is designed as a set of modular R packages, each with a fairly narrow scope. The tidymodels framework follows a similar design. For example, the <c>rsample</c> package focuses on data splitting and resampling. Although resampling methods are critical to other activities of modeling, they reside in a single package, and performance metrics are contained in a different, separate package, <c>yardstick</c>. There are many benefits to adopting this philosophy of modular packages, from less bloated model deployment to smoother package maintenance.
+    </p>
+
+    <listing xml:id="base-r-detach">
+      <caption>Detaching packages before demonstrating tidymodels.</caption>
+      <program language="r">
+        <code><![CDATA[
+pkgs <- paste0("package:",
+               c("kableExtra",
+                 "tidyverse", "tidymodels",
+                 tidyverse:::core, tidymodels:::core))
+for (i in pkgs) {
+  try(detach(i, unload = TRUE, character.only = TRUE, force = TRUE), silent = TRUE)
+}
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      The downside to this philosophy is that there are a lot of packages in the tidymodels framework. To compensate for this, the tidymodels package, which you can think of as a metapackage like the tidyverse package, loads a core set of tidymodels and tidyverse packages. Loading the package shows which packages are attached:
+    </p>
+
+    <listing xml:id="base-r-tidymodels-package">
+      <caption>Loading the tidymodels metapackage.</caption>
+      <program language="r">
+        <code><![CDATA[
+library(tidymodels)
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      If you have used the tidyverse, you'll notice some familiar names as a few tidyverse packages, such as <c>dplyr</c> and <c>ggplot2</c>, are loaded together with the tidymodels packages. We've already said that the tidymodels framework applies tidyverse principles to modeling, but the tidymodels framework also literally builds on some of the most fundamental tidyverse packages such as these.
+    </p>
+
+    <p>
+      Loading the metapackage also shows if there are function naming conflicts with previously loaded packages. As an example of a naming conflict, before loading <c>tidymodels</c>, invoking the <c>filter()</c> function will execute the function in the <c>stats</c> package. After loading tidymodels, it will execute the <c>dplyr</c> function of the same name.
+    </p>
+
+    <p>
+      There are a few ways to handle naming conflicts. The function can be called with its namespace, which is not bad practice but does make the code less readable.
+    </p>
+
+    <p>
+      Another option is to use the <c>conflicted</c> package. We can set a rule that remains in effect until the end of the R session to ensure that one specific function will always run if no namespace is given in the code. As an example, if we prefer the <c>dplyr</c> version of the previous function:
+    </p>
+
+    <listing xml:id="base-r-conflicted">
+      <caption>Setting a conflict preference.</caption>
+      <program language="r">
+        <code><![CDATA[
+library(conflicted)
+conflict_prefer("filter", winner = "dplyr")
+        ]]></code>
+      </program>
+    </listing>
+
+    <p>
+      For convenience, tidymodels contains a function that captures most of the common naming conflicts that we might encounter:
+    </p>
+
+    <listing xml:id="base-r-clonflicts">
+      <caption>Setting common tidymodels preferences.</caption>
+      <program language="r">
+        <code><![CDATA[
+tidymodels_prefer(quiet = FALSE)
+        ]]></code>
+      </program>
+    </listing>
+
+    <warning>
+      <p>
+        Be aware that using this function opts you in to using <c>conflicted::conflict_prefer()</c> for all namespace conflicts, making every conflict an error and forcing you to choose which function to use. The function <c>tidymodels::tidymodels_prefer()</c> handles the most common conflicts from tidymodels functions, but you will need to handle other conflicts in your R session yourself.
+      </p>
+    </warning>
+  </section>
+
+  <section xml:id="chapter-summary">
+    <title>Chapter Summary</title>
+
+    <p>
+      This chapter reviewed core R language conventions for creating and using models that are an important foundation for the rest of this book. The formula operator is an expressive and important aspect of fitting models in R and often serves multiple purposes in non-tidymodels functions. Traditional R approaches to modeling have some limitations, especially when it comes to fluently handling and visualizing model output. The <c>tidymodels</c> metapackage applies tidyverse design philosophy to modeling packages.
+    </p>
+  </section>
 </chapter>
