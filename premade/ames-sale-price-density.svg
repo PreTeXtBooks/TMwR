@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="540" viewBox="0 0 900 540" role="img" aria-labelledby="title desc">
+  <title id="title">Distribution of sale prices in Ames, Iowa</title>
+  <desc id="desc">A density curve of log sale prices with three dashed quartile markers.</desc>
+  <rect width="900" height="540" fill="white"/>
+  <line x1="90" y1="450" x2="830" y2="450" stroke="#222" stroke-width="3"/>
+  <line x1="90" y1="450" x2="90" y2="70" stroke="#222" stroke-width="3"/>
+  <text x="460" y="505" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#222">Sale Price (log-10 USD)</text>
+  <text x="32" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#222" transform="rotate(-90 32 265)">Density</text>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#444">
+    <text x="150" y="475" text-anchor="middle">Q1</text>
+    <text x="330" y="475" text-anchor="middle">Q2</text>
+    <text x="510" y="475" text-anchor="middle">Q3</text>
+    <text x="690" y="475" text-anchor="middle">Q4</text>
+  </g>
+
+  <line x1="240" y1="430" x2="240" y2="155" stroke="#777" stroke-width="3" stroke-dasharray="10 10"/>
+  <line x1="390" y1="430" x2="390" y2="120" stroke="#777" stroke-width="3" stroke-dasharray="10 10"/>
+  <line x1="540" y1="430" x2="540" y2="145" stroke="#777" stroke-width="3" stroke-dasharray="10 10"/>
+
+  <path d="M 120 430
+           C 170 425, 190 390, 220 330
+           C 250 265, 290 150, 340 120
+           C 380 95, 430 100, 470 130
+           C 520 165, 560 220, 600 265
+           C 640 305, 690 345, 740 380
+           C 775 405, 805 420, 815 430"
+        fill="none" stroke="#2c7fb8" stroke-width="5"/>
+
+  <path d="M 120 430
+           C 170 425, 190 390, 220 330
+           C 250 265, 290 150, 340 120
+           C 380 95, 430 100, 470 130
+           C 520 165, 560 220, 600 265
+           C 640 305, 690 345, 740 380
+           C 775 405, 805 420, 815 430
+           L 815 430 L 120 430 Z"
+        fill="#2c7fb8" fill-opacity="0.12" stroke="none"/>
+
+  <circle cx="240" cy="250" r="7" fill="#777"/>
+  <circle cx="390" cy="125" r="7" fill="#777"/>
+  <circle cx="540" cy="155" r="7" fill="#777"/>
+</svg>
