@@ -59,7 +59,7 @@ ggplot(crickets,
 
     <note>
       <p>
-        Suppose there were five species instead of two. The model formula, in this case, would create four binary columns that are binary indicators for four of the species. The <em>reference level</em> of the factor (that is, the first level) is always left out of the predictor set. The idea is that, if you know the values of the four indicator variables, the value of the species can be determined.
+        Suppose there were five species instead of two. The model formula, in this case, would create four binary indicator columns for four of the species. The <em>reference level</em> of the factor (that is, the first level) is always left out of the predictor set. The idea is that, if you know the values of the four indicator variables, the value of the species can be determined.
       </p>
     </note>
 
@@ -222,7 +222,7 @@ predict(main_effect_fit, new_values)
 
     <warning>
       <p>
-        This is an important point that will come up multiple times in this text, especially when we discuss more complex feature engineering in Chapter 8 and beyond. The formula in R has some limitations, and our approaches to overcoming them contend with all three aspects.
+        This is an important point that will come up multiple times in this text, especially when we discuss more complex feature engineering in Chapter <xref ref="ch-recipes" /> and beyond. The formula in R has some limitations, and our approaches to overcoming them contend with all three aspects.
       </p>
     </warning>
   </section>
@@ -407,7 +407,7 @@ conflict_prefer("filter", winner = "dplyr")
       For convenience, tidymodels contains a function that captures most of the common naming conflicts that we might encounter:
     </p>
 
-    <listing xml:id="base-r-clonflicts">
+    <listing xml:id="base-r-conflicts">
       <caption>Setting common tidymodels preferences.</caption>
       <program language="r">
         <code><![CDATA[
