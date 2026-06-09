@@ -20,7 +20,7 @@
     <title>Tidyverse Principles</title>
 
     <p>
-      The full set of strategies and tactics for writing R code in the tidyverse style can be found at the website design.tidyverse.org. Here we can briefly describe several of the general tidyverse design principles, their motivation, and how we think about modeling as an application of these principles.
+      The full set of strategies and tactics for writing R code in the tidyverse style can be found at the website <url href="https://design.tidyverse.org">design.tidyverse.org</url>. Here we can briefly describe several of the general tidyverse design principles, their motivation, and how we think about modeling as an application of these principles.
     </p>
 
     <subsection xml:id="design-for-humans">
@@ -53,7 +53,7 @@
       </p>
 
       <p>
-        The tidyverse approach is to use function names that are descriptive and explicit over those that are short and implicit. There is a focus on verbs (for example, <c>fit</c> and <c>arrange</c>) for general methods. Verb-noun pairs are particularly effective; consider <c>invert_matrix()</c> as a hypothetical function name. In the context of modeling, it is also important to avoid highly technical jargon, such as Greek letters or obscure terms in terms. Names should be as self-documenting as possible.
+        The tidyverse approach is to use function names that are descriptive and explicit over those that are short and implicit. There is a focus on verbs (for example, <c>fit</c> and <c>arrange</c>) for general methods. Verb-noun pairs are particularly effective; consider <c>invert_matrix()</c> as a hypothetical function name. In the context of modeling, it is also important to avoid highly technical jargon, such as Greek letters or obscure terms in names. Names should be as self-documenting as possible.
       </p>
 
       <p>
@@ -75,6 +75,17 @@
       <p>
         As an example, the <c>rsample</c> package can be used to create resamples of a data set, such as cross-validation or the bootstrap (described in Chapter 10). The resampling functions return a tibble with a column called <c>splits</c> of objects that define the resampled data sets. Three bootstrap samples of a data set might be stored in a tibble with a list-column of split objects.
       </p>
+
+      <listing xml:id="tidyverse-bootstrap-example">
+        <caption>Bootstrap samples stored in a tibble.</caption>
+        <program language="r">
+          <code><![CDATA[
+boot_samp <- rsample::bootstraps(mtcars, times = 3)
+boot_samp
+class(boot_samp)
+          ]]></code>
+        </program>
+      </listing>
 
       <p>
         With this approach, vector-based functions can be used with these columns, such as <c>vapply()</c> or <c>purrr::map()</c>. This <c>boot_samp</c> object has multiple classes but inherits methods for data frames (<c>data.frame</c>) and tibbles (<c>tbl_df</c>). Additionally, new columns can be added to the results without affecting the class of the data. This is much easier and more versatile for users to work with than a completely new object type that does not make its data structure obvious.
@@ -112,12 +123,27 @@
       <title>Design for the pipe and functional programming</title>
 
       <p>
-        The <c>magrittr</c> pipe operator (<c>%&gt;%</c>) is a tool for chaining together a sequence of R functions. In R 4.1.0, a native pipe operator <c>|&gt;</c> was introduced as well. In this book, we use the <c>magrittr</c> pipe for consistency with the examples used throughout the text.
+        The <c>magrittr</c> pipe operator (<c>%>%</c>) is a tool for chaining together a sequence of R functions. In R 4.1.0, a native pipe operator <c>|></c> was introduced as well. In this book, we use the <c>magrittr</c> pipe for consistency with the examples used throughout the text.
       </p>
 
       <p>
         To demonstrate, consider sorting a data frame and then retaining the first 10 rows. A multi-step sequence can be written in a compact way with the pipe operator, which substitutes the value of the left-hand side as the first argument to the right-hand side. The piped version of this sequence is more readable; this readability increases as more operations are added to a sequence.
       </p>
+
+      <listing xml:id="tidyverse-pipe-example">
+        <caption>Sorting and subsetting with and without the pipe.</caption>
+        <program language="r">
+          <code><![CDATA[
+small_mtcars <- arrange(mtcars, gear)
+small_mtcars <- slice(small_mtcars, 1:10)
+
+small_mtcars <-
+  mtcars %>%
+  arrange(gear) %>%
+  slice(1:10)
+          ]]></code>
+        </program>
+      </listing>
 
       <p>
         This approach to programming works in this example because all of the functions used return the same data structure, a data frame, that is then the first argument to the next function. This is by design. When possible, create functions that can be incorporated into a pipeline of operations.
@@ -126,6 +152,17 @@
       <p>
         If you have used <c>ggplot2</c>, this is not unlike the layering of plot components into a <c>ggplot</c> object with the <c>+</c> operator. To make a scatter plot with a regression line, the initial <c>ggplot()</c> call is augmented with two additional operations.
       </p>
+
+      <listing xml:id="tidyverse-ggplot-example">
+        <caption>A scatter plot with a regression line.</caption>
+        <program language="r">
+          <code><![CDATA[
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = lm)
+          ]]></code>
+        </program>
+      </listing>
 
       <p>
         While similar to the <c>dplyr</c> pipeline, note that the first argument to this pipeline is a data set and that each function call returns a <c>ggplot</c> object. Not all pipelines need to keep the returned values the same as the initial value. Using the pipe operator with <c>dplyr</c> operations has acclimated many R users to expect to return a data frame when pipelines are used; as shown with <c>ggplot2</c>, this does not need to be the case. Pipelines are incredibly useful in modeling workflows but modeling pipelines can return, instead of a data frame, objects such as model components.
@@ -139,6 +176,24 @@
         Let's look at an example. Suppose you are interested in the logarithm of the ratio of the fuel efficiency to the car weight. To those new to R and/or coming from other programming languages, a loop might seem like a good option. However, in many real-world cases, the element-wise operation of interest is too complex for a vectorized solution.
       </p>
 
+      <listing xml:id="tidyverse-functional-example">
+        <caption>A loop and a functional alternative.</caption>
+        <program language="r">
+          <code><![CDATA[
+n <- nrow(mtcars)
+ratios <- rep(NA_real_, n)
+for (car in 1:n) {
+  ratios[car] <- log(mtcars$mpg[car] / mtcars$wt[car])
+}
+head(ratios)
+
+compute_log_ratio <- function(mpg, wt, log_base = exp(1)) {
+  log(mpg / wt, base = log_base)
+}
+          ]]></code>
+        </program>
+      </listing>
+
       <p>
         In such a case, a good approach is to write a function to do the computations. When we design for functional programming, it is important that the output depends only on the inputs and that the function has no side effects. A better version would be a function that takes the relevant arguments directly and returns the calculation without reading or changing external state.
       </p>
@@ -146,6 +201,20 @@
       <p>
         The <c>purrr</c> package contains tools for functional programming. Let's focus on the <c>map()</c> family of functions, which operates on vectors and always returns the same type of output. The most basic function, <c>map()</c>, always returns a list and uses the basic syntax of <c>map(vector, function)</c>. There are specialized variants of <c>map()</c> that return values when we know or expect that the function will generate one of the basic vector types.
       </p>
+
+      <listing xml:id="tidyverse-map-example">
+        <caption>Using <c>map()</c> and related helpers.</caption>
+        <program language="r">
+          <code><![CDATA[
+map(head(mtcars$mpg, 3), sqrt)
+map_dbl(head(mtcars$mpg, 3), sqrt)
+log_ratios <- map2_dbl(mtcars$mpg, mtcars$wt, compute_log_ratio)
+head(log_ratios)
+map2_dbl(mtcars$mpg, mtcars$wt, ~ log(.x / .y)) %>%
+  head()
+          ]]></code>
+        </program>
+      </listing>
 
       <p>
         There are also mapping functions that operate across multiple vectors. The <c>map()</c> functions also allow for temporary, anonymous functions defined using the tilde character. These examples have been trivial but, in later sections, will be applied to more complex problems.
@@ -182,8 +251,24 @@
       To demonstrate some syntax, let's use tidyverse functions to read in data that could be used in modeling. The data set comes from the city of Chicago's data portal and contains daily ridership data for the city's elevated train stations. The data set has columns for the station identifier, station name, date, day of the week, and number of riders.
     </p>
 
+    <listing xml:id="tidyverse-chicago-example">
+    <caption>Importing and summarizing Chicago ridership data.</caption>
+    <program language="r">
+      <code><![CDATA[
+url <- "https://data.cityofchicago.org/api/views/5neh-572f/rows.csv?accessType=DOWNLOAD&bom=true&format=true"
+
+all_stations <-
+  read_csv(url) %>%
+  dplyr::select(station = stationname, date, rides) %>%
+  mutate(date = mdy(date), rides = rides / 1000) %>%
+  group_by(date, station) %>%
+  summarize(rides = max(rides), .groups = "drop")
+      ]]></code>
+    </program>
+    </listing>
+
     <p>
-      Our tidyverse pipeline would conduct the following tasks, in order:
+    Our tidyverse pipeline would conduct the following tasks, in order:
     </p>
 
     <ol>
@@ -210,7 +295,7 @@
     <title>Chapter Summary</title>
 
     <p>
-      This chapter introduced the tidyverse, with a focus on applications for modeling and how tidyverse design principles inform the tidymodels framework. Think of the tidymodels framework as applying tidyverse principles to the domain of building models. We described differences in conventions between the tidyverse and base R, and introduced two important components of the tidyverse system, tibbles and the pipe operator <c>%&gt;%</c>. Data cleaning and processing can feel mundane at times, but these tasks are important for modeling in the real world; we illustrated how to use tibbles, the pipe, and tidyverse functions in an example data import and processing exercise.
+      This chapter introduced the tidyverse, with a focus on applications for modeling and how tidyverse design principles inform the tidymodels framework. Think of the tidymodels framework as applying tidyverse principles to the domain of building models. We described differences in conventions between the tidyverse and base R, and introduced two important components of the tidyverse system, tibbles and the pipe operator <c>%>%</c>. Data cleaning and processing can feel mundane at times, but these tasks are important for modeling in the real world; we illustrated how to use tibbles, the pipe, and tidyverse functions in an example data import and processing exercise.
     </p>
   </section>
 </chapter>
